@@ -57,5 +57,14 @@
     <ClCompile Include="auto.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Const.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Initialization.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Decltype_1.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
