@@ -81,5 +81,11 @@
     <ClCompile Include="ThreadPol.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="ServerSocket.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientSocket.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

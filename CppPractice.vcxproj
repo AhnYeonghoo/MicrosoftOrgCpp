@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="auto.cpp" />
+    <ClCompile Include="ClientSocket.cpp" />
     <ClCompile Include="Const.cpp" />
     <ClCompile Include="constexpr.cpp" />
     <ClCompile Include="Decltype_1.cpp" />
@@ -142,6 +143,7 @@
     <ClCompile Include="SelectionSort.cpp" />
     <ClCompile Include="Set.cpp" />
     <ClCompile Include="Set2.cpp" />
+    <ClCompile Include="ServerSocket.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="Thread.cpp" />
     <ClCompile Include="Thread2.cpp" />

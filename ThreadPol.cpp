@@ -101,7 +101,7 @@ int work(int t, int id)
 	return t + id;
 }
 
-int main() 
+int mainThreadPol() 
 {
 	ThreadPol::ThreadPol pool(3);
 
