@@ -1,63 +1,13 @@
-#include <iostream>
-#include <vector>
+// compile with: /EHsc
 #include <Windows.h>
+#include <stdlib.h>
+#include <vector>
+#include <iostream>
 #include <string>
 #include <limits>
 #include <stdexcept>
-#include <stdlib.h>
 
-class NDResourceClass
-{
-private:
-    int *m_p;
-    float *m_q;
-
-public:
-    NDResourceClass() : m_p(0), m_q(0)
-    {
-        m_p = new int;
-        m_q = new float;
-    }
-
-    ~NDResourceClass()
-    {
-        delete m_p;
-        delete m_q;
-    }
-};
-
-#include <memory>
 using namespace std;
-
-class SPResourceClass
-{
-private:
-    shared_ptr<int> m_p;
-    shared_ptr<float> m_q;
-
-public:
-    SPResourceClass() : m_p(new int), m_q(new float) {}
-};
-
-class Shape
-{
-};
-class Circle : public Shape
-{
-};
-class Triangle : public Shape
-{
-};
-
-class SPShapeResourceClass
-{
-private:
-    shared_ptr<Shape> m_p;
-    shared_ptr<Shape> m_q;
-
-public:
-    SPShapeResourceClass() : m_p(new Circle), m_q(new Triangle) {}
-};
 
 string FormatErrorMessage(DWORD error, const string &msg)
 {
@@ -76,7 +26,8 @@ private:
 public:
     Win32Exception(DWORD error, const string &msg)
         : runtime_error(FormatErrorMessage(error, msg)), m_error(error) {}
-    DWORD GetErorrCode() const { return m_error; }
+
+    DWORD GetErrorCode() const { return m_error; }
 };
 
 void ThrowLastErrorIf(bool expression, const string &msg)
@@ -92,6 +43,7 @@ class File
 private:
     HANDLE m_handle;
 
+    // Declared but not defined, to avoid double closing.
     File &operator=(const File &);
     File(const File &);
 
@@ -103,7 +55,9 @@ public:
         ThrowLastErrorIf(m_handle == INVALID_HANDLE_VALUE,
                          "CreateFile call failed on file named " + filename);
     }
+
     ~File() { CloseHandle(m_handle); }
+
     HANDLE GetHandle() { return m_handle; }
 };
 
@@ -127,12 +81,60 @@ size_t GetFileSizeSafe(const string &filename)
 
 vector<char> ReadFileVector(const string &filename)
 {
-    File fojb(filename);
+    File fobj(filename);
     size_t filesize = GetFileSizeSafe(filename);
     DWORD bytesRead = 0;
+
     vector<char> readbuffer(filesize);
 
-    BOOL result = ReadFile(fobj.GetHandle(), readbuffer.data(),
-                           readbuffer.size(), &bytesRead, nullptr);
+    BOOL result = ReadFile(fobj.GetHandle(), readbuffer.data(), readbuffer.size(),
+                           &bytesRead, nullptr);
     ThrowLastErrorIf(result == FALSE, "ReadFile failed: " + filename);
+
+    cout << filename << " file size: " << filesize << ", bytesRead: "
+         << bytesRead << endl;
+
+    return readbuffer;
+}
+
+bool IsFileDiff(const string &filename1, const string &filename2)
+{
+    return ReadFileVector(filename1) != ReadFileVector(filename2);
+}
+
+#include <iomanip>
+
+int main(int argc, char *argv[])
+{
+    string filename1("file1.txt");
+    string filename2("file2.txt");
+
+    try
+    {
+        if (argc > 2)
+        {
+            filename1 = argv[1];
+            filename2 = argv[2];
+        }
+
+        cout << "Using file names " << filename1 << " and " << filename2 << endl;
+
+        if (IsFileDiff(filename1, filename2))
+        {
+            cout << "+++ Files are different." << endl;
+        }
+        else
+        {
+            cout << "=== Files match." << endl;
+        }
+    }
+    catch (const Win32Exception &e)
+    {
+        ios state(nullptr);
+        state.copyfmt(cout);
+        cout << e.what() << endl;
+        cout << "Error code: 0x" << hex << uppercase << setw(8) << setfill('0')
+             << e.GetErrorCode() << endl;
+        cout.copyfmt(state); // restore previous formatting
+    }
 }
