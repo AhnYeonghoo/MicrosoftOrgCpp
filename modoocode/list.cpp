@@ -51,4 +51,5 @@ int main()
     }
 
     print_list(lst);
+    print_list(lst);
 }
