@@ -37,6 +37,44 @@ Distance operator"" _mi(long double val)
     return Distance(val * Distance::km_per_mile);
 }
 
+void operator"" _dump(unsigned long long int lit)
+{
+    printf("operator \"\" _dump(unsigned long long int) : ===>%llu<===\n", lit);
+};
+
+void operator"" _dump(char32_t lit)
+{
+    printf("operator \"\" _dump(char32_t) : ===>%d<===\n", lit);
+};
+
+void operator"" _dump(const char *lit, size_t)
+{
+    printf("operator \"\" _dump(const char*, size_t) : ===>%s<===\n", lit);
+};
+
+void operator"" _dump(const wchar_t *lit, size_t)
+{
+    printf("operator \"\" _dump(const wchar_t*, size_t): ===>%ls<===\n", lit);
+};
+
+void operator"" _dump(const char16_t *lit, size_t)
+{
+    printf("operator \"\" _dump(const char16_t*, size_t_): \n");
+};
+
+void operator"" _dump(const char32_t *lit, size_t)
+{
+    printf("operator \"\" _dump(const char32_t*, size_t):\n");
+};
+
+void operator"" _dump_raw(const char *lit)
+{
+    printf("operator \"\" _dump_raw(const char*) : ===>%s<===\n", lit);
+};
+
+template <char...>
+void operator"" _dump_template();
+
 int main()
 {
     Distance d{402.0_km};
