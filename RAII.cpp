@@ -72,5 +72,7 @@ int main()
     v.push_back(s2);
     v.push_back(s3);
 
+    // Modern C++
     std::vector<S> v2{s1, s2, s3};
+    
 }
