@@ -67,6 +67,22 @@ int main()
             if (playWith < animalNum)
                 Play(list[animalNum]);
             break;
+        case 3:
+            std::cout << "누구껄 보게? : ";
+            playWith = 2;
+            if (playWith < animalNum)
+                ShowStat(list[animalNum]);
+            break;
         }
+
+        for (int i = 0; i != aniamlNum; i++)
+        {
+            OneDayPass(list[i]);
+        }
+    }
+
+    for (int i = 0; i != animalNum; i++)
+    {
+        delete list[i];
     }
 }
