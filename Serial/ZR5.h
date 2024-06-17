@@ -35,5 +35,4 @@ public:
 
     __property bool IsValid = {read = FIsValid};
     __property bool IsCommandInit = {read = FIsCommandInit};
-    __property
 }
