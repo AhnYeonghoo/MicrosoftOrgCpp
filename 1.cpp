@@ -18,5 +18,9 @@ int main()
     std::cout << std::pow(2, sizeof(short) * 8) << std::endl;
     std::cout << std::pow(2, sizeof(short) * 8 - 1) - 1 << std::endl;
 
+    cout << "I Love you. " << endl;
+
+    exit(0);
+
     return 0;
 }
