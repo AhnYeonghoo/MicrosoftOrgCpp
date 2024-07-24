@@ -11,7 +11,7 @@ namespace ConsoleApp1
     internal class StringModify
     {
 
-        static void Main(string[] args)
+        static void MainStringModify(string[] args)
         {
             WriteLine($"ToLower(): {"ABC".ToLower()}");
             WriteLine($"ToUpper(): {"abc".ToUpper()}");

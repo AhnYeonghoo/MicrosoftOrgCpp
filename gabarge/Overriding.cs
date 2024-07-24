@@ -34,7 +34,7 @@ namespace Overriding
     }
     internal class Overriding
     {
-        static void Main()
+        static void MainOverriding()
         {
             Console.WriteLine("Creating ArmorSuite");
             ArmorSuite armorSuite = new ArmorSuite();
