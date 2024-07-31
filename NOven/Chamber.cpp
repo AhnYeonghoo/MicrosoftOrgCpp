@@ -509,3 +509,187 @@ bool OvenChamber::IsStateFileExist()
     strFile.sprintf(L"%s%s%c\\Current_T.ini", GetRootFolder().c_str(), L"PATTERN_CM_", 'A' + FChamberID);
     return FileExists(strFile);
 }
+
+void OvenChamber::SetChamberTempLimit(double maxLimit, double limit)
+{
+    if (FChamberTempLimitController)
+    {
+        FChamberTempLimitController->MaxLimit = maxLimit;
+        FChamberTempLimitController->Limit1 = limit;
+        FChamberTempLimitController->Limit2 = limit;
+        FChamberTempLimitController->LimitOffset = ChamberTempLimitOffset;
+        FChamberTempLimitController->SP = limit + ChamberTempLimitOffset;
+        FChamberTempLimitController->Bias = ChamberTempLimitBias;
+    }
+}
+
+double OvenChamber::GetPV()
+{
+    if (MainTempController == nullptr)
+    {
+        return 0;
+    }
+    return MainTempController->PV;
+}
+
+double OvenChamber::GetSP()
+{
+    if (MainTempController == nullptr) 
+    {
+        return;
+    }
+    return MainTempController->SP;
+}
+
+double OvenChamber::GetHeaterOut()
+{
+    if (MainTempController == nullptr)
+    {
+        return 0;
+    }
+    return MainTempController->HeaterOutput;
+}
+
+double OvenChamber::GetSegNo()
+{
+    if (MainTempController == nullptr)
+    {
+        return 0;
+    }
+    return MaintempController->SegNo;
+}
+
+int OvenChamber::GetTotalSeg()
+{
+    if (MainTempController == nullptr)
+    {
+        return 0;
+    }
+    return MainTempController->TotalSeg;
+}
+
+int OvenChamber::GetOpMode()
+{
+    if (MainTempController == nullptr)
+    {
+        return 0;
+    }
+    return MainTempController->OpMode;
+}
+
+bool OvenChamber::IsMainTempCtrlCoolingEventOn()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return FMainTempController->GetTimeEvent(ET_TIMEEVENT2);
+}
+
+bool OvenChamber::IsMainTempCtrlRun()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsRun;
+}
+
+bool OvenChamber::IsMainTempCtrlReset()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsReset;
+}
+
+bool OvenChamber::IsMainTempCtrlLocal()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsLocal;
+}
+
+bool OvenChamber::IsMainTempCtrlHold()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsHold;
+}
+
+bool OvenChamber::IsMainTempCtrlKeylocked()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsKeyLocked;
+}
+
+bool OvenChamber::IsMainTempCtrlAutoMode()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsAutoMode;
+}
+
+bool OvenChamber::IsBurnout()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsBurnout;
+}
+
+bool OvenChamber::IsATOn()
+{
+    if (MainTempController == nullptr)
+    {
+        return false;
+    }
+    return MainTempController->IsAutoTuningOn;
+}
+
+double OvenChamber::GetChamberLimitPV()
+{
+    if (FChamberTempLimitController == nullptr)
+    {
+        return 0;
+    }
+    return FChamberTempLimitController->PV;
+}
+
+double OvenChamber::GetChamberLimitSP()
+{
+    if (FChamberTempLimitController == nullptr)
+    {
+        return 0;
+    }
+    return FChamberTempLimitController->SP;
+}
+
+double OvenChamber::GetPressureLimitPV()
+{
+    if (FPressureLimitController == nullptr)
+    {
+        return 0;
+    }
+    return FPressureLimitController->PV;
+}
+
+double OvenChamber::GetPressureLimitSP()
+{
+    if (FPressureLimitController == nullptr)
+    {
+        return 0;
+    }
+    return FPressureLimitController->SP;
+}
