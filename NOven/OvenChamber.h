@@ -184,4 +184,7 @@ public:
     bool __fastcall IsIdleStep();
     bool __fastcall IsDoneStep();
     bool __fastcall IsStopPossibleStep();
+    bool __fastcall IsCoolingPossibleStep();
+    bool __fastcall IsForcedCureStopped();
+    bool __fastcall IsCuring();
 };
