@@ -187,4 +187,11 @@ public:
     bool __fastcall IsCoolingPossibleStep();
     bool __fastcall IsForcedCureStopped();
     bool __fastcall IsCuring();
+    bool __fastcall IsATOn();
+    bool __fastcall IsTimeEventOn(int eventNo);
+
+    void __fastcall SetTempLimit();
+    void __fastcall MakeDataFilename();
+    void __fastcall DoMainTempControllerKeyLock();
+    bool __fastcall GotoNextSeg();
 };

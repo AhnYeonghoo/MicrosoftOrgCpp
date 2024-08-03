@@ -174,3 +174,133 @@ bool __fastcall OvenChamber::CreateSerialDevices()
     }
     return true;
 }
+
+void __fastcall OvenChamber::DestroySerialDevices()
+{
+    if (MainTempController)
+    {
+        MainTempController->Terminate();
+        Sleep(300);
+        delete MainTempController;
+        MainTempController = nullptr;
+    }
+    if (TempLimitController)
+    {
+        TempLimitController->Terminate();
+        Sleep(300);
+        delete TempLimitController;
+        TempLimitController = nullptr;
+    }
+    if (LoggerController)
+    {
+        LoggerController->Terminate();
+        Sleep(300);
+        delete LoggerController;
+        LoggerController = nullptr;
+    }
+    if (DPController)
+    {
+        DPController->Terminate();
+        Sleep(300);
+        delete DPController;
+        DPController = nullptr;
+    }
+}
+
+bool __fastcall OvenChamber::LoadChamberParameters()
+{
+    return FOptions.Load();
+}
+
+bool __fastcall OvenChamber::SaveChamberParameters()
+{
+    return FOptions.Save();
+}
+
+void __fastcall OvenChamber::CheckHeaterOutLimit()
+{
+    if (FMainTempController == nullptr)
+    {
+        return;
+    }
+
+    int targetOutput = (int)Options.General.HeaterOutputLimit;
+    int currOutput = FMainTempController->GetHeaterOutLimit();
+    if (targetOutput != currOutput)
+    {
+        FMainTempController->WriteHeaterOutLimit(TargetOutput);
+    }
+}
+
+void __fastcall OvenChamber::DoWorkSequence()
+{
+    SetTempLimit();
+    CheckHeaterOutLimit();
+    CheckTempLoggerDeviation();
+
+    switch (FStep)
+    {
+    case STEP_IDLE:
+    {
+    }
+    break;
+
+    case STEP_START_DOOR_INIT:
+    {
+        if (DoorRun->IsInitialized())
+        {
+            SetStep(STEP_DOWNLOAD_RECIPE);
+            break;
+        }
+        DoorRun->StartInitialize();
+        SetStep(STEP_WAIT_DOOR_INIT);
+    }
+    break;
+
+    case STEP_WAIT_DOOR_INIT:
+    {
+        if (DoorRun->IsInitialized() == false)
+        {
+            break;
+        }
+        if (DoorRun->IsInitFailed())
+        {
+            SetStep(STEP_IDLE);
+            break;
+        }
+        SetStep(STEP_DOWNLOAD_RECIPE);
+    }
+    break;
+
+    case STEP_DOWNLOAD_RECIPE:
+    {
+        InitCureValues();
+        MakeCurePattern();
+
+        int alarmCode = FMainTempController->DownloadRecipe(Recipe.TempPtn);
+        if (alarmCode > 0)
+        {
+            RaiseAlarm(alarmCode);
+            SetStep(STEP_IDLE);
+            break;
+        }
+
+        if (FMainTempController->Run(Recipe.TempPtn.PtnNo) == false)
+        {
+            RaiseAlarm(ERR_TEMP_CONTROLLER_RUN_FAIL);
+            SetStep(STEP_IDLE);
+            break;
+        }
+
+        RearManualDoorLock();
+        CoolingBufferDoorLock();
+
+        bool useO2Analyzer = GetManager()->Options.FactorySetting.UseO2Analyzer;
+        bool purgeFirst = Options.O2Function.CureStartOnTartDensity;
+        int step = (useO2Analyzer && purgeFirst) ? STEP_O2_PURGE : STEP_CURE_START;
+        Options.O2Function.ResetValues();
+        SetStep(step);
+    }
+    break;
+    }
+}
