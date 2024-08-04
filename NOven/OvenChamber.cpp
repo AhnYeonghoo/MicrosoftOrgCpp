@@ -302,5 +302,49 @@ void __fastcall OvenChamber::DoWorkSequence()
         SetStep(step);
     }
     break;
+
+    case STEP_O2_PURGE:
+    {
+        if (IsHold == false)
+        {
+            if (FMainTempController->Hold() == false)
+            {
+                RaiseAlarm(ERR_TEMP_CONTROLLER_HOLD_FAIL);
+                SetStep(STEP_IDLE);
+                break;
+            }
+            Sleep(1000);
+            break;
+        }
+
+        if (Options.O2Function.CheckO2DensityValid(O2Valid, IsO2Valid))
+        {
+            SetStep(STEP_CURE_START);
+            break;
+        }
+
+        if (Options.O2Function.IsO2DensityTimeout())
+        {
+            RaiseAlarm(ERR_O2_DENSITY_ALARM);
+            SetStep(STEP_IDLE);
+            break;
+        }
+    }
+    break;
+
+    case STEP_CURE_START:
+    {
+        if (IsHold)
+        {
+            if (FMainTempController->Resume() == false)
+            {
+                RaiseAlarm(ERR_TEMP_CONTROLLER_RESUME_FAIL);
+                SetStep(STEP_IDLE);
+                break;
+            }
+            Sleep(100);
+            break;
+        }
+    }
     }
 }
