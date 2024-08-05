@@ -345,6 +345,129 @@ void __fastcall OvenChamber::DoWorkSequence()
             Sleep(100);
             break;
         }
+        SetStep(STEP_RAMPUP);
+        Sleep(1000);
+    }
+    break;
+
+    case STEP_RAMPUP:
+    {
+        if (IsForcedCureStopped())
+        {
+            SetStep(STEP_DONE);
+            break;
+        }
+        if (IsRun == false)
+        {
+            RaiseAlarm(ERR_TEMP_CONTROLLER_NOT_RUN);
+        }
+
+        bool useO2Analyzer = GetManager()->Options.FactorySetting.UseO2Analyzer;
+        bool purgeFirst = Options.O2Function.CureStartOnTargetDensity;
+        if (useO2Analyzer)
+        {
+            if (purgeFirst)
+            {
+                if (Options.O2Function.CheckO2DensityValid(O2Value, IsO2Valid) == false)
+                {
+                    RaiseAlarm(ERR_O2_DENSITY_ALARM);
+                }
+            }
+            else
+            {
+                Options.O2Function.CheckO2DensityValid(O2Value, IsO2Valid);
+                if (Options.O2Function.IsO2DensityTimeout())
+                {
+                    RaiseAlarm(ERR_O2_DENSITY_ALARM);
+                }
+            }
+        }
+        break;
+
+    case STEP_RUNNING:
+    {
+        if (IsForcedCureStopped())
+        {
+            SetStep(STEP_IDLE);
+            break;
+        }
+        if (IsRun == false)
+        {
+            RaiseAlarm(ERR_TEMP_CONTROLLER_NOT_RUN);
+        }
+
+        bool useO2Analyzer = GetManager()->Options.FactorySetting.UseO2Analyzer;
+        if (useO2Analyzer)
+        {
+            if (Options.O2Function.CheckO2DensityValid(O2Value, IsO2Valid) == false)
+            {
+                RaiseAlarm(ERR_O2_DENSITY_ALARM);
+            }
+        }
+
+        if (IsCoolingEventOn == false)
+        {
+            break;
+        }
+        SetStep(STEP_COOLING);
+    }
+    break;
+
+    case STEP_GOTO_COOLING:
+    {
+        while (SegNo != 3)
+        {
+            GotoNextSeg();
+            Wait(2);
+        }
+
+        if (IsCoolingEventOn == false)
+        {
+            break;
+        }
+        SetStep(STEP_COOLING);
+    }
+    break;
+
+    case STEP_COOLING:
+    {
+        if (IsForcedCureStopped())
+        {
+            SetStep(STEP_IDLE);
+            break;
+        }
+
+        if (FMainTempController->RamainingTime > 1)
+        {
+            if (IsRun == false)
+            {
+                RaiseAlarm(ERR_TEMP_CONTROLLER_NOT_RUN);
+            }
+        }
+
+        int shutdownTemp = Options.General.ShutdownTemp;
+        if (IsReset || PV < (double)shutdownTemp)
+        {
+            SetStep(STEP_DONE);
+        }
+    }
+    break;
+
+    case STEP_CURE_STOP:
+    {
+        if (DoCureStop(FORCED_STOP))
+        {
+            SetStep(STEP_DONE);
+        }
+    }
+    break;
+
+    case STEP_DONE:
+    {
+        RearManualDoorUnlock();
+        CoolingBufferDoorUnlock();
+        DeleteStateFile();
+    }
+    break;
     }
     }
-}
