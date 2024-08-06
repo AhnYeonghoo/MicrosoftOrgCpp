@@ -383,7 +383,7 @@ void __fastcall OvenChamber::DoWorkSequence()
             }
         }
         break;
-
+    }
     case STEP_RUNNING:
     {
         if (IsForcedCureStopped())
@@ -470,4 +470,51 @@ void __fastcall OvenChamber::DoWorkSequence()
     }
     break;
     }
+}
+
+bool __fastcall OvenChamber::DoCureStop(int stopType)
+{
+    if (FMainTempController == nullptr)
+    {
+        return false;
     }
+
+    for (int i = 0; i < 3; i++)
+    {
+        if (FMainTempController->Reset())
+        {
+            Sleep(500);
+            if (IsReset)
+            {
+                Recipe.StopType = stopType;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool __fastcall OvenChamber::SaveCurrentState()
+{
+    String strFile, str;
+    strFile.sprintf(L"%s\\Current_T_%c.ini", GetStatusFolder().c_str(), 'A' + ModuleType);
+
+    std::auto_ptr<TIniFile> statFile(new TIniFile(strFile));
+    String sec = "STATE";
+
+    try
+    {
+        statFile->WriteDateTime(sec, "Last Save Time", Now());
+        statFile->WriteInteger(sec, "Step", FStep);
+        statFile->WriteString(sec, "Recipe", Recipe.RecipeName);
+        statFile->WriteString(sec, "UserID", GetManager()->UserID);
+        statFile->WriteDateTime(sec, "Start Time", Recipe.CureStartTime);
+        statFile->WriteBool(sec, "Job End", Recipe.JobEnd);
+        statFile->WriteInteger(sec, "Stop Type", Recipe.StopType);
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+    }
+    return true;
+}
