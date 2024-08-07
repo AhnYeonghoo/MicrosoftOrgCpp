@@ -514,7 +514,90 @@ bool __fastcall OvenChamber::SaveCurrentState()
     }
     catch (const std::exception &e)
     {
-        std::cerr << e.what() << '\n';
+        return false;
     }
     return true;
+}
+
+bool __fastcall OvenChamber::LoadCurrentState()
+{
+    String strFile;
+    strFile.sprintf(L"%s\\Current_T_%c.ini", GetStatusFolder().c_str(), 'A' + ModuleType);
+
+    if (FileExists(strFile) == false)
+    {
+        return false;
+    }
+
+    std::auto_ptr<TIniFile> statFile(new TIniFile(strFile));
+    String sec = "STATE";
+
+    try
+    {
+        Step = statFile->ReadInteger(sec, "Step", FStep);
+        Recipe.RecipeName = statFile->ReadString(sec, "Recipe", Recipe.RecipeName);
+        GetManager()->UserID = statFile->ReadString(sec, "User ID", GetManager()->UserID);
+        Recipe.CureStartTime = statFile->ReadDateTime(sec, "Start Time", Recipe.CureStartTime);
+        Recipe.JobEnd = statFile->ReadBool(sec, "Job End", Recipe.JobEnd);
+        Recipe.StopType = statFile->ReadInteger(sec, "Stop Type", Recipe.StopType);
+        MakeDataFilename();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << e.what() << '\n';
+        return false;
+    }
+    return true;
+}
+
+bool __fastcall OvenChamber::DeleteStateFile()
+{
+    String strFile;
+    strFile.sprintf(L"%s\\Current_T_%c.ini", GetStatusFolder().c_str(), 'A' + ModuleType);
+
+    bool ret = false;
+
+    if (FileExists(strFile))
+    {
+        ret = DeleteFile(strFile);
+    }
+    return ret;
+}
+
+void __fastcall OvenChamber::MakeDataFilename()
+{
+    FILE *pFile;
+    AnsiString file, name, folder;
+
+    name.sprintf("%c_", 'A' + ModuleType);
+    name += Recipe.CureStartTime.FormatString("yyyy_mm_dd_hh_nn_ss");
+
+    folder = GetReportFolder();
+    file = folder + "MainTemp_" + name + ".cht";
+    pFile = fopen(file.c_str(), "a+t");
+
+    if (pFile != nullptr)
+    {
+        fclose(pFile);
+    }
+
+    Recipe.MainTempFilename = file;
+
+    file = folder + "LIMIT_" + name + ".cht";
+    pFile = fopen(file.c_str(), "a+t");
+
+    if (pFile != nullptr)
+    {
+        fclose(pFile);
+    }
+    Recipe.LimitFilename = file;
+
+    file = folder + "LOGGER_" + name + ".cht";
+    pFile = fopen(file.c_str(), "a+t");
+
+    if (pFile != nullptr)
+    {
+        fclose(pFile);
+    }
+    Recipe.LoggerFilename = file;
 }
