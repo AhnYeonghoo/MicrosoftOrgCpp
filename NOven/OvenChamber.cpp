@@ -601,3 +601,63 @@ void __fastcall OvenChamber::MakeDataFilename()
     }
     Recipe.LoggerFilename = file;
 }
+
+void __fastcall OvenChamber::DoMainTempControllerKeyLock()
+{
+    if (GetManager() == nullptr)
+    {
+        return;
+    }
+
+    if (FMainTempController == nullptr)
+    {
+        return;
+    }
+
+    if (GetManager()->LoginLevel >= LV_ENGINEER)
+    {
+        if (IsKeyLocked)
+        {
+            FMainTempController->UnlockKey();
+            Sleep(500);
+        }
+    }
+    else
+    {
+        if (IsKeyLocked == false)
+        {
+            FMainTempController->LockKey();
+            Sleep(500);
+        }
+    }
+}
+
+bool __fastcall OvenChamber::IsIdleStep()
+{
+    return Step == STEP_IDLE;
+}
+
+bool __fastcall OvenChamber::IsDoenStep()
+{
+    return Step == STEP_DONE;
+}
+
+bool __fastcall OvenChamber::IsStopPossibleStep()
+{
+    return (Step == STEP_O2_PURGE || Step == STEP_CURE_START || Step == STEP_RAMPUP || Step == STEP_RUNNING || Step == STEP_COOLING);
+}
+
+bool __fastcall OvenChamber::IsCoolingPossibleStep()
+{
+    return (Step == STEP_RAMPUP || Step == STEP_RUNNING);
+}
+
+bool __fastcall OvenChamber::IsForecedCureStopped()
+{
+    return (Recipe.StopType != NORMAL_STOP && IsReset);
+}
+
+bool __fastcall OvenChamber::IsCuring()
+{
+    return (Step >= STEP_RUNNING);
+}
