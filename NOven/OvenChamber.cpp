@@ -661,3 +661,59 @@ bool __fastcall OvenChamber::IsCuring()
 {
     return (Step >= STEP_RUNNING);
 }
+
+void __fastcall OvenChamber::InitCureValues()
+{
+    Recipe.CureStartTime = Now();
+    Recipe.StopType = NORMAL_STOP;
+    Recipe.JobEnd = false;
+    RemoveLoggerPVAlarm();
+}
+
+void __fastcall OvenChamber::MakeCurePattern()
+{
+    ZeroMemory(&Recipe.TempPtn, sizeof(PTN));
+
+    int cureTemp = (int)Options.General.CureTemp;
+    int shutdownTemp = (int)Options.General.ShutdownTemp;
+    int rampupTime = (int)Options.General.RampupTime;
+    int pvHigh = (int)Options.General.PVHighOffset;
+    int pvLow = (int)Options.General.PVLowOffset;
+    int segIdx = 0;
+
+    Recipe.TempPtn.PtnNo = 1;
+    Recipe.TempPtn.Stc.SegCount = 3;
+    Recipe.TempPtn.Stc.Ssp = 0;
+    Recipe.TempPtn.Stc.Stc = 2;
+    Recipe.TempPtn.Seg[segIdx].Tsp = cureTemp;
+    Recipe.TempPtn.Seg[segIdx].Time = rampupTime;
+    Recipe.TempPtn.Seg[segIdx].Pid = 1;
+    Recipe.TempPtn.Seg[segIdx].Jc = 0;
+    Recipe.TempPtn.Seg[segIdx].EvKind[0] = ET_N2PURGE;
+    Recipe.TempPtn.Seg[segIdx].OnType[0] = 0;
+    Recipe.TempPtn.Seg[segIdx].OffPe[0] = rampupTime;
+
+    segIdx;
+    Recipe.TempPtn.Seg[segIdx].Tsp = cureTemp;
+    Recipe.TempPtn.Seg[segIdx].Time = rampupTime;
+    Recipe.TempPtn.Seg[segIdx].Pid = 1;
+    Recipe.TempPtn.Seg[segIdx].Jc = 1;
+    Recipe.TempPtn.Seg[segIdx].EvKind[0] = ET_PVHIGH;
+    Recipe.TempPtn.Seg[segIdx].OnType[0] = 3;
+    Recipe.TempPtn.Seg[segIdx].OffPe[0] = pvHigh;
+    Recipe.TempPtn.Seg[segIdx].EvKind[1] = ET_PVLOW;
+    Recipe.TempPtn.Seg[segIdx].OnType[1] = 4;
+    Recipe.TempPtn.Seg[segIdx].OffPe[1] = pvLow;
+    Recipe.TempPtn.Seg[segIdx].EvKind[2] = ET_N2PURGE;
+    Recipe.TempPtn.Seg[segIdx].OnType[2] = 0;
+    Recipe.TempPtn.Seg[segIdx].OffPe[2] = rampupTime;
+
+    segIdx++;
+    Recipe.TempPtn.Seg[segIdx].Tsp = 0;
+    Recipe.TempPtn.Seg[segIdx].Time = rampupTime;
+    Recipe.TempPtn.Seg[segIdx].Pid = 1;
+    Recipe.TempPtn.Seg[segIdx].Jc = 1;
+    Recipe.TempPtn.Seg[segIdx].EvKind[0] = ET_COOLING;
+    Recipe.TempPtn.Seg[segIdx].OnType[0] = 0;
+    Recipe.TempPtn.Seg[segIdx].OffPe[0] = rampupTime;
+}
