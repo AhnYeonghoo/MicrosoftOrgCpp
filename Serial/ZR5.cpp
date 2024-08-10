@@ -14,4 +14,6 @@ __fastcall ZR::ZR5(PORTINFO portInfo) : SerialDevice(portInfo)
     OpenSerialPort();
 }
 
+
+
 __fastcall ZR5::~ZR5() {}
