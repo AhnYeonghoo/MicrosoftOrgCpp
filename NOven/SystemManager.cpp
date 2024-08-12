@@ -130,3 +130,101 @@ void __fastcall SystemManager::InitManager()
     str = GetResStr(L"UI", L"PositiveDir");
     HomeSensorDirStr.push_back(str);
 }
+
+void __fastcall SystemManager::InitDirectory(String programName)
+{
+    String folder, data, str, msg;
+
+    folder = GetRootFolder();
+    if (DirectoryExists(folder) == false)
+    {
+        CreateFolder(folder);
+    }
+
+    folder = GetDataFolder();
+    if (DirectoryExists(folder) == false)
+    {
+        CreateFolder(folder);
+    }
+
+    data = folder;
+
+    folder = GetLogFolder();
+    if (DirectoryExists(folder) == false)
+    {
+        CreateFolder(folder);
+    }
+
+    folder = GetReportFolder();
+    if (DirectoryExists(folder) == false)
+    {
+        CreateFolder(folder0;)
+    }
+
+    String srcFolder = ExtractFilePath(Applicaton->ExeName);
+    String dstFile = data + SYSTEM_DB;
+    String srcFile = srcFolder + SYSTEM_DB;
+    if (FileExists(dstFile) == false)
+    {
+        CopyFile(srcFile.c_str(), dstFile.c_str(), true);
+    }
+
+    dstFile = data + ERRDEF_DB;
+    srcFile = srcFolder + ERRDEF_DB;
+    CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+
+    dstFile = data + LANUGAGE_INI;
+    srcFile = srcFolder + LANGUAGE_INI;
+    int tmp = CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+
+    dstFile = data + IO_INI;
+    srcFile = srcFolder + IO_INI;
+    if (FileExists(dstFile) == false)
+    {
+        CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+    }
+
+    dstFile = data + "ALID.TXT";
+    srcFile = srcFolder + "ALID.TXT";
+    CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+
+    dstFile = data + "CEID.TXT";
+    srcFile = srcFolder + "CEID.TXT";
+    CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+
+    dstFile = data + "RPTID.TXT";
+    srcFile = srcFolder + "RPTID.TXT";
+    CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+
+    dstFile = data + "SVID.TXT";
+    srcFile = srcFolder + "SVID.TXT";
+    CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+
+    dstFile = data + "FORMAT.SML";
+    srcFile = srcFolder + "FORMAT.SML";
+    CopyFile(srcFile.c_str(), dstFile.c_str(), false);
+}
+
+HandlerBaseThread *SystemManager::GetHandlder(int moduleType)
+{
+    HandlderBaseThread *handlder = nullptr;
+    for (auto i : HandlderThreads)
+    {
+        if (i && i->ModuleType == ModuleType)
+        {
+            handlder = i;
+            break;
+        }
+    }
+    return handler;
+}
+
+bool __fastcall SystemManager::LoadSystemParameters()
+{
+    return FOptions.Load();
+}
+
+bool __fastcall SystemManager::SaveSystemParameters()
+{
+    return FOptions.Save();
+}
