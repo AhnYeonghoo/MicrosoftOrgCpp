@@ -48,3 +48,85 @@ SystemManager::SystemManager()
     LoginLevel = LV_OPERATOR;
 #endif
 }
+
+SystemManager::~SystemManager()
+{
+    if (FTowerLampOption)
+    {
+        delete FTowerLampOption;
+        FTowerLampOption = nullptr;
+    }
+
+    DestroyHandler();
+    DestroyLogWriter();
+    DestroyIOManager();
+    DestroyMotors();
+
+    if (Options.FactorySetting.IOType == IT_COMIZOA)
+    {
+        ComiEtherCatIOManager::UnloadLibrary();
+    }
+}
+
+void __fastcall CreateFolder(String folder)
+{
+    if (CreateDir(folder) == false)
+    {
+        String msg;
+        String str = GetResStr(L"MESSAGE", L"FileCreateFail");
+        msg.sprintf(str.c_str(), folder.c_str());
+        SetMessageStr(msg);
+        ShowMessageDlg();
+    }
+}
+
+void __fastcall SystemManager::InitManager()
+{
+    String title = UpperCase(Application->Title);
+    InitDirectory(title);
+    LoadLanguageStr();
+    GetDB()->ConnectDB();
+    GetDB()->ConnectErrDB();
+
+    LoadSystemParameters();
+    OptionItem<int> language = Options.General.Language;
+    Options.General.Language = language;
+
+    CreateLogWriter();
+    if (Options.FactorySetting.IOType == IT_COMIZOA)
+    {
+        String str;
+        if (ComiEtherCatIOManager::LoadLibrary(str) == false)
+        {
+            SetMessageStr(str);
+            ShowMessageDlg();
+        }
+    }
+
+    LoadIOSettings();
+    LoadTowerLampValue();
+    CreateIOManager();
+    CreateMotors();
+    CreateChamber();
+    ClearAlarmAll();
+    LoadMotionSettings();
+    CreateHandler();
+
+    if (GetManager()->GetDoor()->IsServoMCOn() == false)
+    {
+        GetManager()->GetDoor()->ServoMCOn();
+    }
+
+    String str;
+    str = GetResStr(L"UI", L"Home");
+    HomeSensorTypeStr.push_back(str);
+    str = GetResStr(L"UI", L"PositiveLimit");
+    HomeSensorTypeStr.push_back(str);
+    str = GetResStr(L"UI", L"NegativeLimit");
+    HomeSensorTypeStr.push_back(str);
+
+    str = GetResStr(L"UI", L"NegativeDir");
+    HomeSensorDirStr.push_back(str);
+    str = GetResStr(L"UI", L"PositiveDir");
+    HomeSensorDirStr.push_back(str);
+}
