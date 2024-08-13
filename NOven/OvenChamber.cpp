@@ -717,3 +717,66 @@ void __fastcall OvenChamber::MakeCurePattern()
     Recipe.TempPtn.Seg[segIdx].OnType[0] = 0;
     Recipe.TempPtn.Seg[segIdx].OffPe[0] = rampupTime;
 }
+
+void __fastcall OvenChamber::CheckCommAlarm()
+{
+    if (MainTempController)
+    {
+        if (MaintempController->CommFail)
+        {
+            RaiseAlarm(ERR_TEMP_CONTROLLER_TIMEOUT);
+        }
+    }
+
+    if (TempLimitController)
+    {
+        if (TempLimitController->CommFail)
+        {
+            RaiseAlarm(ERR_LIMIT_CONTROLLER_TIMEOUT);
+        }
+    }
+
+    if (LoggerController)
+    {
+        if (LoggerController->CommFail)
+        {
+            RaiseAlarm(ERR_TEMP_LOGGER_TIMEOUT);
+        }
+    }
+
+    if (DPController)
+    {
+        if (DPController->CommFail)
+        {
+            RaiseAlarm(ERR_DIFF_TIMEOUT);
+        }
+    }
+
+    if (O2Analyer)
+    {
+        if (O2Analyer->CommFail)
+        {
+            RaiseAlarm(ERR_O2_ANALYZER_TIMEOUT);
+        }
+    }
+}
+
+void __fastcall OvenChamber::CheckPVAlarm()
+{
+    if (IsCuring())
+    {
+        if (MainTempController->PVEventHigh)
+        {
+            RaiseAlarm(ERR_PV_HIGH_ALARM);
+        }
+        if (MainTempController->PVEventLow)
+        {
+            RaiseAlarm(ERR_PV_LOW_ALARM);
+        }
+    }
+}
+
+void __fastcall OvenChamber::RaiseAlarm(int errorCode, bool SetPaused)
+{
+    GetManager()->RegisterAlarm(ModuleName, (MODULE_TYPE)ModuleType, errorCode, setPaused);
+}
